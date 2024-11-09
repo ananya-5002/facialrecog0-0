@@ -1,2 +1,2 @@
 # facialrecog0-0
-facial recognition with features like deepfake detection and anti spoffing
+facial recognition with features like face detection and anti spoffing
