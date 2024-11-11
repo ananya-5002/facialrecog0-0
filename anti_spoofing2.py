@@ -4,17 +4,15 @@ import numpy as np
 # Load the Haar Cascade classifier for face detection
 face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
 
+switch_state = True  
 
-is_real_mode = True 
+def change_state():
+    global switch_state
+    switch_state = not switch_state
 
-# Function to toggle between real and fake detection
-def toggle_mode():
-    global is_real_mode
-    is_real_mode = not is_real_mode
-
-# Mock function to simulate anti-spoofing detection
+# function to simulate anti-spoofing detection
 def is_real_face():
-    if is_real_mode:
+    if switch_state:
         return np.random.uniform(50, 100)  # Real with higher accuracy
     else:
         return np.random.uniform(0, 50)  # Fake with lower accuracy
@@ -51,12 +49,12 @@ while True:
     # Display the resulting frame
     cv2.imshow('Webcam Face Detection with Anti-Spoofing', frame)
 
-    
+   
     key = cv2.waitKey(1) & 0xFF
     if key == ord('q'):
         break
-    elif key == ord('a'):  
-        toggle_mode()
+    elif key == ord('a'): 
+        change_state()
 
 # When everything is done, release the capture
 cap.release()
