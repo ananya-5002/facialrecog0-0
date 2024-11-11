@@ -1,16 +1,26 @@
 import cv2
-
-# Set the absolute path to the haarcascade file
-face_cascade_path = 'D:\\Personal\\ml-course\\Mini_project\\haarcascade_frontalface_default.xml'
+import numpy as np
 
 # Load the Haar Cascade classifier for face detection
-face_cascade = cv2.CascadeClassifier(face_cascade_path)
+face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
 
-# Initialize label as "Real" by default
-label = "Real"
+
+is_real_mode = True 
+
+# Function to toggle between real and fake detection
+def toggle_mode():
+    global is_real_mode
+    is_real_mode = not is_real_mode
+
+# Mock function to simulate anti-spoofing detection
+def is_real_face():
+    if is_real_mode:
+        return np.random.uniform(50, 100)  # Real with higher accuracy
+    else:
+        return np.random.uniform(0, 50)  # Fake with lower accuracy
 
 # Start the webcam
-cap = cv2.VideoCapture(0)
+cap = cv2.VideoCapture(0)  # 0 is the default camera
 
 while True:
     # Capture frame-by-frame
@@ -25,24 +35,29 @@ while True:
     # Detect faces in the frame
     faces = face_cascade.detectMultiScale(gray, scaleFactor=1.1, minNeighbors=5)
 
-    # Draw rectangles around detected faces and display the label
+    # Draw rectangles around detected faces and determine if they are real or fake
     for (x, y, w, h) in faces:
+        # Get the accuracy percentage for the detected face
+        accuracy = is_real_face()
+        label = "Real" if accuracy > 50 else "Fake"  # Assuming 50% as a threshold
+
         # Draw rectangle around face
         cv2.rectangle(frame, (x, y), (x + w, y + h), (255, 0, 0), 2)
-        # Display the label ("Real" or "Fake")
-        cv2.putText(frame, f"{label}", (x, y - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (255, 0, 0), 2)
+        # Prepare the label with accuracy
+        label_text = f"{label} ({accuracy:.2f}%)"
+        # Add the label to the image
+        cv2.putText(frame, label_text, (x, y - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (255, 0, 0), 2)
 
-    # Show the frame with detection and label
-    cv2.imshow('Webcam Face Detection', frame)
+    # Display the resulting frame
+    cv2.imshow('Webcam Face Detection with Anti-Spoofing', frame)
 
-    # Check if 'r' key is pressed to toggle the label
+    
     key = cv2.waitKey(1) & 0xFF
-    if key == ord('r'):
-        # Toggle label between "Real" and "Fake"
-        label = "Fake" if label == "Real" else "Real"
-    elif key == ord('q'):
+    if key == ord('q'):
         break
+    elif key == ord('a'):  
+        toggle_mode()
 
-# Release the capture and close windows
+# When everything is done, release the capture
 cap.release()
 cv2.destroyAllWindows()
